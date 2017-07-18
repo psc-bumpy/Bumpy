@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:baselineAligned="false"
+    android:orientation="vertical"
+    android:weightSum="1">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Bumpy"
+        android:textSize="40sp"
+        android:textAlignment="center"
+        android:gravity="center_vertical"
+        android:textColor="#FFFFFF"
+        android:background="#0F056B"
+        android:lines="2"
+        android:layout_marginBottom="2sp"/>
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="102dp"
+        android:id="@+id/speed"
+        android:layout_gravity="center"
+        android:text="Speed"/>
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="102dp"
+        android:id="@+id/save"
+        android:layout_gravity="center"
+        android:text="Envoyer les données"/>
+
+</LinearLayout>
+

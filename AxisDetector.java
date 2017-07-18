@@ -1,31 +1,60 @@
+package com.psc.bumpy;
+
+import java.util.Date;
+
 
 public class AxisDetector
 {
-    double[][] changementDeRepere;								//changementDeRepere[i][j] est la i�me composante du vecteur colonne j de la matrice 3*3
-
+    double[][] changementDeRepere;								                                    //changementDeRepere[i][j] est la ième composante du vecteur colonne j de la matrice 3*3
+    double lastUpdate;
+    boolean updated;
     private static double FREQUENCYUPDATE=5000;
-   
-    boolean update(double[][] datas)
-    {   
-        double moyX=0;														//
-        double moyY=0;														//
-        double moyZ=0;														//
-        int dataSize=datas.length;								//
-        for(int i=0;i<dataSize/4;i++){
-        	moyX+=datas[0][i];
-        	moyY+=datas[1][i];
-        	moyZ+=datas[2][i];
+    AxisDetector()
+    {
+        updated=false;
+        changementDeRepere=new double[3][3];
+        lastUpdate=new Date().getTime();
+    }
+
+    //return true si le calcul des axes a pu se faire,false sinon
+    boolean update(DataBuffer datas)
+    {
+        if(new Date().getTime()-lastUpdate<FREQUENCYUPDATE)
+            return false;
+
+
+        if(datas.getTime().size()==0 || datas.isAnObstacle()||datas.getTime().getLast()-datas.getTime().getFirst()<2000) //Si on est sur un obstacle, ou si l'échantillon est moins long que 2s, calculer le repère sol n'a pas d'intérêt
+        {
+            return false;
         }
-        moyX/=dataSize;														//
-        moyY/=dataSize;														//
-        moyZ/=dataSize;														//
-        Vector3d xMobile=new Vector3d(1,0,0);							//d�termination z
+        lastUpdate=new Date().getTime();
+        updated=true;
+        double moyX=0;
+        double moyY=0;
+        double moyZ=0;
+        int dataSize=datas.getTime().size();
+        for(int i=0;i<dataSize;i++)
+        {																	                        //on moyenne l'entrée pour éviter des aberrations
+
+            if(!datas.getX().isEmpty()&&!datas.getY().isEmpty()&&!datas.getZ().isEmpty())
+            {
+                moyX+=datas.getX().removeFirst();
+                moyY+=datas.getY().removeFirst();
+                moyZ+=datas.getZ().removeFirst();
+            }
+
+
+        }
+        moyX/=dataSize;
+        moyY/=dataSize;
+        moyZ/=dataSize;
+        Vector3d xMobile=new Vector3d(1,0,0);							                            //détermination z
         Vector3d yMobile=new Vector3d(0,1,0);
         Vector3d zMobile=new Vector3d(0,0,1);
         Vector3d[] rep={xMobile,yMobile,zMobile};
         Vector3d gravity=new Vector3d(moyX,moyY,moyZ);
         gravity.normalize();
-        //On cherche un deuxi�me vecteur pour la base
+        //On cherche un deuxième vecteur pour la base
         Vector3d vector2=new Vector3d(0,0,0);
         Vector3d vector3=new Vector3d(0,0,0);
         if(gravity.x<Vector3d.MINI)
@@ -40,7 +69,7 @@ public class AxisDetector
             vector2=xMobile.vect(gravity);
             vector2.normalize();
         }
-        //le troisi�me vecteur est perpendiculaire aux deux autres
+        //le troisième vecteur est perpendiculaire aux deux autres
         vector3=gravity.vect(vector2);
         vector3.normalize();
         for(int i=0;i<3;i++)
@@ -56,7 +85,7 @@ public class AxisDetector
     {
         if(mobileCoord.length!=3)
         {
-            System.out.println("AxisDetector : vecteur d'entr�e de dimension incorrecte, dimension = "+mobileCoord.length);
+            System.out.println("AxisDetector : vecteur d'entrée de dimension incorrecte, dimension = "+mobileCoord.length);
             return mobileCoord;
         }
         double[] groundCoord=new double[3];
